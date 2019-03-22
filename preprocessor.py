@@ -32,11 +32,22 @@ appendix = pd.read_csv("dataset/wins6.csv", names=["head_to_head"])
 
 clean_table.loc[:, "head_to_head"] = pd.Series(appendix.loc[:,"head_to_head"])
 
-appendix = pd.read_csv("dataset/odds6.csv", names=["odds_home", "odds_draw", "odds_away"])
+with open('dataset/odds6.csv', 'rt') as f:
+    reader = csv.reader(f)
+    probs_list = list(reader)
 
-clean_table.loc[:, "odds_home"] = pd.Series(appendix.loc[:,"odds_home"])
-clean_table.loc[:, "odds_draw"] = pd.Series(appendix.loc[:,"odds_draw"])
-clean_table.loc[:, "odds_away"] = pd.Series(appendix.loc[:,"odds_away"])
+probs_dict = {0: [], 1: [], 2: []}
+
+for probs in probs_list:
+    for i in range(len(probs)):
+        if float(probs[i]) != 0:
+            probs_dict[i].append(1/float(probs[i]))
+        else:
+            probs_dict[i].append(1)
+
+clean_table.loc[:, "home_prob"] = pd.Series(probs_dict[0])
+clean_table.loc[:, "draw_prob"] = pd.Series(probs_dict[1])
+clean_table.loc[:, "away_prob"] = pd.Series(probs_dict[2])
 
 with open('dataset/fresults6.csv', 'rt') as f:
     reader = csv.reader(f)
