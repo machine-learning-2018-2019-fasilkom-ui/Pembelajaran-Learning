@@ -1,0 +1,56 @@
+import csv
+import pandas as pd
+
+clean_table = pd.DataFrame()
+
+with open('dataset/names6.csv', 'rt') as f:
+    reader = csv.reader(f)
+    teams_list = list(reader)
+
+
+home_name, away_name = [], []
+for i in range(len(teams_list)):
+	splt = teams_list[i][0].split(" / ")
+	home_name.append(splt[0])
+	away_name.append(splt[1])
+
+
+clean_table.loc[:, 'home_name'] = pd.Series(home_name)
+clean_table.loc[:, 'away_name'] = pd.Series(away_name)
+
+appendix = pd.read_csv("dataset/winrate6.csv", names=["winrate_home", "winrate_away"])
+
+clean_table.loc[:, "winrate_home"] = pd.Series(appendix.loc[:,"winrate_home"])
+clean_table.loc[:, "winrate_away"] = pd.Series(appendix.loc[:,"winrate_away"])
+
+appendix = pd.read_csv("dataset/ranks6.csv", names=["rank_home", "rank_away"])
+
+clean_table.loc[:, "rank_home"] = pd.Series(appendix.loc[:,"rank_home"])
+clean_table.loc[:, "rank_away"] = pd.Series(appendix.loc[:,"rank_away"])
+
+appendix = pd.read_csv("dataset/wins6.csv", names=["head_to_head"])
+
+clean_table.loc[:, "head_to_head"] = pd.Series(appendix.loc[:,"head_to_head"])
+
+appendix = pd.read_csv("dataset/odds6.csv", names=["odds_home", "odds_draw", "odds_away"])
+
+clean_table.loc[:, "odds_home"] = pd.Series(appendix.loc[:,"odds_home"])
+clean_table.loc[:, "odds_draw"] = pd.Series(appendix.loc[:,"odds_draw"])
+clean_table.loc[:, "odds_away"] = pd.Series(appendix.loc[:,"odds_away"])
+
+with open('dataset/fresults6.csv', 'rt') as f:
+    reader = csv.reader(f)
+    final_score = list(reader)
+
+game_conclusion = []
+for i in range(len(final_score)):
+	if final_score[i][0] > final_score[i][1]:
+		game_conclusion.append("HOME")
+	elif final_score[i][0] == final_score[i][1]:
+		game_conclusion.append("DRAW")
+	else:
+		game_conclusion.append("AWAY")
+
+clean_table.loc[:, 'game_conclusion'] = pd.Series(game_conclusion)
+
+clean_table.to_csv("clean_table.csv", index=False)
