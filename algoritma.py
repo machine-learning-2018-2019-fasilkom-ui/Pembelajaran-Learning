@@ -91,3 +91,17 @@ for epoch in range(5000):
     if epoch % 200 == 0:
         loss = np.sum(-one_hot_labels * np.log(ao))
         print('Loss function value: ', loss)
+        
+
+results = np.zeros(ao.shape)
+for i in range(ao.shape[0]):
+    idx = np.argmax(ao[i])
+    results[i][idx] = 1
+    
+correct_num = 0
+for result,label in zip(results,one_hot_labels):
+    correct = result == label
+    if correct.all():
+        correct_num += 1
+        
+print("accuracy: ", float(correct_num)/int(results.shape[0]))
