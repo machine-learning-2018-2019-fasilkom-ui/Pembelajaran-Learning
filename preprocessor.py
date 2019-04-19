@@ -1,3 +1,5 @@
+from sklearn.preprocessing import RobustScaler
+
 import csv
 import pandas as pd
 
@@ -34,6 +36,10 @@ clean_table.loc[:, "home_prob"] = pd.Series(probs_dict[0])
 clean_table.loc[:, "draw_prob"] = pd.Series(probs_dict[1])
 clean_table.loc[:, "away_prob"] = pd.Series(probs_dict[2])
 
+transformer = RobustScaler().fit(clean_table.values)
+clean_table = pd.DataFrame(transformer.transform(clean_table.values),
+                           columns=list(clean_table))
+
 with open('dataset/fresults6.csv', 'rt') as f:
     reader = csv.reader(f)
     final_score = list(reader)
@@ -49,4 +55,4 @@ for i in range(len(final_score)):
 
 clean_table.loc[:, 'game_conclusion'] = pd.Series(game_conclusion)
 
-clean_table.to_csv("clean_table.csv", index=False)
+clean_table.to_csv("clean_table.csv", index=False, quoting=csv.QUOTE_NONE)
