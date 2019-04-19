@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 data = pd.read_csv('clean_table.csv')
 
-X = np.array(data.drop(columns = ['home_name','away_name','game_conclusion']))
+X = np.array(data.drop(columns = ['game_conclusion']))
 y = data['game_conclusion']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
