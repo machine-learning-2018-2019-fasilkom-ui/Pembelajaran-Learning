@@ -23,7 +23,6 @@ class NNMultiClassClassifier:
         return expA / expA.sum(axis=1, keepdims=True)
 
     def fit(self, X, one_hot_y):
-        instances = X.shape[0]
         attributes = X.shape[1]
 
         self.wh = np.random.rand(attributes, self.hidden_nodes)
@@ -91,4 +90,4 @@ class NNMultiClassClassifier:
             if correct.all():
                 correct_num += 1
 
-        print("Accuracy: ", float(correct_num) / int(results.shape[0]))
+        return float(correct_num) / int(results.shape[0])
