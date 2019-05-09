@@ -1,4 +1,4 @@
-from layers import Relu, Sigmoid, Dense
+from layers import Softmax, Sigmoid, Dense, Relu
 import numpy as np
 
 
@@ -13,18 +13,18 @@ class ANNClassifier:
         self.model.append(Dense(input_nodes, self.hidden_layer_sizes[0], 'xavier'))
         self.model.append(Sigmoid())
         for i in range(len(self.hidden_layer_sizes)-1):
-            self.model.append(Dense(self.hidden_layer_sizes[i], self.hidden_layer_sizes[i + 1]))
+            self.model.append(Dense(self.hidden_layer_sizes[i], self.hidden_layer_sizes[i + 1], 'xavier'))
             self.model.append(Sigmoid())
         self.model.append(Dense(self.hidden_layer_sizes[-1], output_nodes, 'xavier'))
-        self.model.append(Relu())
+        self.model.append(Softmax())
 
     def _loss_function(self, layer_input_output_cache, y_true):
-        y_pred = layer_input_output_cache[-1]
-        bin_log_loss = -(1.0 / len(y_true)) * sum(
-            [y_true[i] * np.log(y_pred[i]) + (1.0 - y_true[i]) * np.log(1.0 - y_pred[i]) for i in range(len(y_true))])
-        bin_log_loss_grad = (y_pred - y_true) / ((1 - y_pred) * y_pred)
-
-        return bin_log_loss, bin_log_loss_grad
+        logits = layer_input_output_cache[-1]
+        y_pred = Softmax().forward(logits)
+        softmax_cross_entropy_loss = -1.0 / len(y_true) * np.sum(
+            [y_true[i] * np.log(y_pred[i]) for i in range(len(y_true))])
+        softmax_cross_entropy_grad = y_pred - y_true
+        return softmax_cross_entropy_loss, softmax_cross_entropy_grad
 
     def _update_layer(self, layer, weight, bias):
         layer.weights = layer.weights - self.learning_rate * weight
@@ -49,7 +49,7 @@ class ANNClassifier:
             layer = self.model[j]
 
             # list of gradient
-            backprop = layer.backward(layer_input_output_cache, output_grad)
+            backprop = layer.backward(layer_input_output_cache[j], output_grad)
 
             # update output grad and
             if len(backprop) > 1:
@@ -59,16 +59,16 @@ class ANNClassifier:
             else:
                 output_grad = backprop[0]
 
-    def fit(self, X_train, y_train, X_validate=None, y_validate=None, batch_size=None):
-        self._create_model(X_train.shape[1], y_train.shape[1])
+    def fit(self, x_train, y_train, x_validate=None, y_validate=None, batch_size=None):
+        self._create_model(x_train.shape[1], y_train.shape[1])
         if batch_size is None:
-            batch_size = X_train.shape[0]
+            batch_size = x_train.shape[0]
 
-        total_m_train = X_train.shape[0]
+        total_m_train = x_train.shape[0]
 
-        use_validation = X_validate is not None
+        use_validation = x_validate is not None
         if use_validation:
-            total_m_val = X_validate.shape[0]
+            total_m_val = x_validate.shape[0]
 
         # we are using the definition of epoch as 1 iteration to all training example
         history_train = []
@@ -80,7 +80,7 @@ class ANNClassifier:
             for i in (range(0, total_m_train, batch_size)):
                 # separate each set to minibatches
                 adjusted_batch_size = min(i + batch_size, total_m_train)
-                X_batch_train = X_train[i:adjusted_batch_size]
+                X_batch_train = x_train[i:adjusted_batch_size]
                 y_batch_train = y_train[i:adjusted_batch_size]
 
                 # forward propagate
@@ -92,18 +92,19 @@ class ANNClassifier:
                 history_per_batch.append(loss)
 
                 # backward propagation
-                self._backward(np.array(layer_input_output_cache), np.array(output_grad))
+                self._backward(layer_input_output_cache, output_grad)
             history_train.append(history_per_batch)
 
             train_loss_mean = np.mean(history_per_batch)
             print("Train Loss Mean:", train_loss_mean)
+            val_loss_mean = None
 
             if use_validation:
                 history_per_batch = []
                 for i in (range(0, total_m_val, batch_size)):
                     # separate each set to minibatches
                     adjusted_batch_size = min(i + batch_size, total_m_val)
-                    X_batch_val = X_validate[i:adjusted_batch_size]
+                    X_batch_val = x_validate[i:adjusted_batch_size]
                     y_batch_val = y_validate[i:adjusted_batch_size]
 
                     # forward propagate
@@ -123,4 +124,5 @@ class ANNClassifier:
         _input = X
         for layer in self.model:
             _input = layer.forward(_input)
-        return _input
+
+        return np.argmax(_input, axis=1).T
