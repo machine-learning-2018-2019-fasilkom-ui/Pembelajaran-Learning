@@ -28,17 +28,10 @@ class Softmax:
 
 
 class Dense:
-    def __init__(self, input_shape, output_shape, weight_initializer='random'):
+    def __init__(self, input_shape, output_shape):
 
-        if weight_initializer not in ['xavier', 'random']:
-            raise ValueError('weight_initializer must be either xavier or random')
-
-        if weight_initializer == 'random':
-            self.weights = np.random.randn(input_shape, output_shape) * 1e-2
-
-        elif weight_initializer == 'xavier':
-            self.weights = np.random.randn(input_shape, output_shape) * np.sqrt(2 / (input_shape + output_shape))
-
+        # xavier weight initializer
+        self.weights = np.random.randn(input_shape, output_shape) * np.sqrt(2 / (input_shape + output_shape))
         self.bias = np.random.randn(output_shape)
 
     def forward(self, _input):
