@@ -3,18 +3,22 @@ import numpy as np
 
 
 class ANNClassifier:
-    def __init__(self, epoch, learning_rate=1e-4, hidden_layer_sizes=(50, 50)):
+    def __init__(self, epoch, beta=0.9, learning_rate=1e-4, hidden_layer_sizes=(50, 50)):
         self.epoch = epoch
         self.hidden_layer_sizes = hidden_layer_sizes
         self.learning_rate = learning_rate
+        self.beta = beta
+        self.velocity = {}
 
     def _create_model(self, input_nodes, output_nodes):
         self.model = []
         self.model.append(Dense(input_nodes, self.hidden_layer_sizes[0], 'xavier'))
-        self.model.append(Sigmoid())
+        self.model.append(Relu())
+        np.random.seed(2017)
         for i in range(len(self.hidden_layer_sizes)-1):
             self.model.append(Dense(self.hidden_layer_sizes[i], self.hidden_layer_sizes[i + 1], 'xavier'))
             self.model.append(Sigmoid())
+        np.random.seed(3011)
         self.model.append(Dense(self.hidden_layer_sizes[-1], output_nodes, 'xavier'))
         self.model.append(Softmax())
 
@@ -27,7 +31,11 @@ class ANNClassifier:
         return softmax_cross_entropy_loss, softmax_cross_entropy_grad
 
     def _update_layer(self, layer, weight, bias):
-        layer.weights = layer.weights - self.learning_rate * weight
+        if id(layer) not in self.velocity:
+            self.velocity[id(layer)] = 0
+
+        self.velocity[id(layer)] = self.beta * self.velocity[id(layer)] + (1 - self.beta) * weight
+        layer.weights = layer.weights - self.learning_rate * self.velocity[id(layer)]
         layer.bias = layer.bias - self.learning_rate * bias
 
     # forward propagation    
@@ -126,3 +134,11 @@ class ANNClassifier:
             _input = layer.forward(_input)
 
         return np.argmax(_input, axis=1).T
+
+    def score(self, x, y):
+        correct_num = 0
+        for result, label in zip(self.predict_proba(x), np.argmax(y, axis=1)):
+            if result == label:
+                correct_num += 1
+
+        return float(correct_num) / int(x.shape[0])

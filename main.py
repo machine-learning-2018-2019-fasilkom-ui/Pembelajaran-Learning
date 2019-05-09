@@ -1,6 +1,5 @@
 from ANNClassifier import ANNClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
 
 import pandas as pd
 import numpy as np
@@ -46,7 +45,8 @@ one_hot_test = np.zeros((len(test_labels), 3))
 for i in range(len(test_labels)):
     one_hot_test[i, test_labels[i]] = 1
 
-network = ANNClassifier(150, hidden_layer_sizes=(7, 7))
-network.fit(X_train, one_hot_train, x_validate=X_test, y_validate=one_hot_test)
+network = ANNClassifier(250, hidden_layer_sizes=[20])
+network.fit(X_train, one_hot_train, batch_size=400)
 
 result = network.predict_proba(X_test)
+print(network.score(X_test, one_hot_test))
