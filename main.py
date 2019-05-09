@@ -1,5 +1,5 @@
+from ANNClassifier import ANNClassifier
 from sklearn.model_selection import train_test_split
-from NNMultiClassClassifier import NNMultiClassClassifier
 
 import pandas as pd
 import numpy as np
@@ -28,7 +28,7 @@ one_hot_train = np.zeros((len(train_labels), 3))
 for i in range(len(train_labels)):
     one_hot_train[i, train_labels[i]] = 1
 
-network = NNMultiClassClassifier(7, one_hot_train.shape[1], 500, 10e-4)
+network = ANNClassifier(500, hidden_layer_sizes=(20, 20))
 network.fit(X_train, one_hot_train)
 
 # Model testing
@@ -50,4 +50,4 @@ one_hot_test = np.zeros((len(test_labels), 3))
 for i in range(len(test_labels)):
     one_hot_test[i, test_labels[i]] = 1
 
-print("Accuracy: ", network.score(X_test, one_hot_test))
+print(network.predict_proba(X_test))

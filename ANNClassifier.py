@@ -49,15 +49,15 @@ class ANNClassifier:
             layer = self.model[j]
 
             # list of gradient
-            D_list = layer.backward(layer_input_output_cache[j], output_grad)
+            backprop = layer.backward(layer_input_output_cache, output_grad)
 
             # update output grad and
-            if len(D_list) > 1:
+            if len(backprop) > 1:
                 # if contain weight and bias update this layer bias and weight
-                [output_grad, weight, bias] = D_list
+                [output_grad, weight, bias] = backprop
                 self._update_layer(layer, weight, bias)
             else:
-                output_grad = D_list[0]
+                output_grad = backprop[0]
 
     def fit(self, X_train, y_train, X_validate=None, y_validate=None, batch_size=None):
         self._create_model(X_train.shape[1], y_train.shape[1])
@@ -92,11 +92,11 @@ class ANNClassifier:
                 history_per_batch.append(loss)
 
                 # backward propagation
-                self._backward(layer_input_output_cache, output_grad)
+                self._backward(np.array(layer_input_output_cache), np.array(output_grad))
             history_train.append(history_per_batch)
 
             train_loss_mean = np.mean(history_per_batch)
-            val_loss_mean = None
+            print("Train Loss Mean:", train_loss_mean)
 
             if use_validation:
                 history_per_batch = []
@@ -114,9 +114,8 @@ class ANNClassifier:
                 history_val.append(history_per_batch)
 
                 val_loss_mean = np.mean(history_per_batch)
-            val_report = ''
             if val_loss_mean is not None:
-                val_report = 'val: {:4f}'.format(val_loss_mean)
+                print("Validation Loss Mean:", val_loss_mean)
 
         return history_train, history_val
 
