@@ -6,6 +6,8 @@ from sklearn.neural_network import MLPClassifier
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 data = pd.read_csv('clean_table.csv')
 
@@ -22,22 +24,24 @@ x_test = np.array(x_test)
 one_hot_test = encode(np.array(y_test))
 
 activation = 'relu'
-epoch = 300
-hidden_layer_sizes = [6, 4]
+epochs = [25,50,100,150,200,250,300]
+hidden_layer_sizes = (128,)
 
-network = ANNClassifier(epoch=150, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
-losses = network.fit(x_train, one_hot_train, rand_seed=37)
-print("Our model accuracy:", network.score(x_test, one_hot_test))
-total_iter = list(range(len(losses)))
-plt.plot(total_iter, losses, 'b')
-plt.grid()
-plt.title("Epoch: {:d}, Activation: {:s}, Hidden Layers: {:s}".format(epoch, activation, str(hidden_layer_sizes)))
-plt.xlabel('epoch')
-plt.ylabel('loss')
-plt.show()
-
-clf = MLPClassifier(activation=activation, hidden_layer_sizes=hidden_layer_sizes)
-clf.fit(x_train, one_hot_train)
-
-result = network.predict_proba(x_test)
-print("Sklearn model accuracy:",clf.score(x_test, one_hot_test))
+for epoch in epochs:
+    network = ANNClassifier(epoch=epoch, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
+    losses = network.fit(x_train, one_hot_train, rand_seed=37)
+    print("epoch:",epoch)
+    print("Our model accuracy:", network.score(x_test, one_hot_test))
+    total_iter = list(range(len(losses)))
+    plt.plot(total_iter, losses, 'b')
+    plt.grid()
+    plt.title("Epoch: {:d}, Activation: {:s}, Hidden Layers: {:s}".format(epoch, activation, str(hidden_layer_sizes)))
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.show()
+    
+    clf = MLPClassifier(activation=activation, hidden_layer_sizes=hidden_layer_sizes,max_iter=epoch)
+    clf.fit(x_train, one_hot_train)
+    
+    print("Sklearn model accuracy:",clf.score(x_test, one_hot_test))
+    print("\n")
