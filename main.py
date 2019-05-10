@@ -1,4 +1,4 @@
-from ANNClassifier import ANNClassifier
+from NNMultiLayer import NNMultiLayer
 from one_hot_encoder import encode
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
@@ -24,11 +24,11 @@ x_test = np.array(x_test)
 one_hot_test = encode(np.array(y_test))
 
 activation = 'relu'
-epochs = [25,50,100,150,200,250,300]
+epochs = [25, 50, 100, 150, 200, 250, 300]
 hidden_layer_sizes = (128,)
 
 for epoch in epochs:
-    network = ANNClassifier(epoch=epoch, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
+    network = NNMultiLayer(epoch=epoch, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
     losses = network.fit(x_train, one_hot_train, rand_seed=37)
     print("epoch:",epoch)
     print("Our model accuracy:", network.score(x_test, one_hot_test))
