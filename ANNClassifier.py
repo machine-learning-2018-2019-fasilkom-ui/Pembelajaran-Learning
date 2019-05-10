@@ -80,6 +80,7 @@ class ANNClassifier:
 
         total_m_train = x_train.shape[0]
 
+        loss_history = []
         for epoch in range(self.epoch):
             history_per_batch = []
             for i in (range(0, total_m_train, batch_size)):
@@ -100,7 +101,11 @@ class ANNClassifier:
                 self._backward(layer_input_output_cache, output_grad)
 
             train_loss_mean = np.mean(history_per_batch)
-            print("Train Loss Mean:", train_loss_mean)
+            loss_history.append(train_loss_mean)
+            if epoch % 10 == 0:
+                print("Epoch {:d}/{:d}".format(epoch, self.epoch))
+
+        return loss_history
 
     def predict_proba(self, X):
         _input = X

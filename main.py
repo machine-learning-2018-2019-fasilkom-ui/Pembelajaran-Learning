@@ -3,6 +3,7 @@ from one_hot_encoder import encode
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
@@ -21,13 +22,21 @@ x_test = np.array(x_test)
 one_hot_test = encode(np.array(y_test))
 
 activation = 'relu'
-hidden_layer_sizes = [63, 21]
+epoch = 300
+hidden_layer_sizes = [6, 4]
 
-network = ANNClassifier(epoch=300, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
-network.fit(x_train, one_hot_train, batch_size=10, rand_seed=42)
-print("Our model accuracy:",network.score(x_test, one_hot_test))
+network = ANNClassifier(epoch=150, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
+losses = network.fit(x_train, one_hot_train, rand_seed=37)
+print("Our model accuracy:", network.score(x_test, one_hot_test))
+total_iter = list(range(len(losses)))
+plt.plot(total_iter, losses, 'b')
+plt.grid()
+plt.title("Epoch: {:d}, Activation: {:s}, Hidden Layers: {:s}".format(epoch, activation, str(hidden_layer_sizes)))
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.show()
 
-clf = MLPClassifier(activation='tanh', hidden_layer_sizes=hidden_layer_sizes)
+clf = MLPClassifier(activation=activation, hidden_layer_sizes=hidden_layer_sizes)
 clf.fit(x_train, one_hot_train)
 
 result = network.predict_proba(x_test)
