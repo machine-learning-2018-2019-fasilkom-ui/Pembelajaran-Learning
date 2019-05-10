@@ -56,7 +56,7 @@ class ANNClassifier:
         return layer_input_output_cache
 
     def _backward(self, layer_input_output_cache, output_grad):
-        # reverse loop
+        # iterate from the rightmost layer
         for j in range(len(self.model))[::-1]:
 
             layer = self.model[j]
