@@ -102,8 +102,6 @@ class ANNClassifier:
 
             train_loss_mean = np.mean(history_per_batch)
             loss_history.append(train_loss_mean)
-            if epoch % 10 == 0:
-                print("Epoch {:d}/{:d}".format(epoch, self.epoch))
 
         return loss_history
 
