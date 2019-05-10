@@ -16,15 +16,16 @@ class ANNClassifier:
         self.beta = beta
         self.velocity = {}
 
-    def _create_model(self, input_nodes, output_nodes):
+    def _create_model(self, input_nodes, output_nodes, random_seed):
         self.model = []
+        np.random.seed(random_seed)
         self.model.append(Dense(input_nodes, self.hidden_layer_sizes[0]))
         self.model.append(self.activation())
         for i in range(len(self.hidden_layer_sizes)-1):
+            np.random.seed(random_seed + (i+1) * random_seed)
             self.model.append(Dense(self.hidden_layer_sizes[i], self.hidden_layer_sizes[i + 1]))
             self.model.append(self.activation())
         self.model.append(Dense(self.hidden_layer_sizes[-1], output_nodes))
-        self.model.append(Softmax())
 
     def _loss_function(self, layer_input_output_cache, y_true):
         logits = layer_input_output_cache[-1]
@@ -71,8 +72,8 @@ class ANNClassifier:
             else:
                 output_grad = backprop[0]
 
-    def fit(self, x_train, y_train, batch_size=None):
-        self._create_model(x_train.shape[1], y_train.shape[1])
+    def fit(self, x_train, y_train, batch_size=None, rand_seed=2017):
+        self._create_model(x_train.shape[1], y_train.shape[1], rand_seed)
 
         if batch_size is None:
             batch_size = x_train.shape[0]
@@ -84,14 +85,14 @@ class ANNClassifier:
             for i in (range(0, total_m_train, batch_size)):
                 # separate each set to minibatches
                 adjusted_batch_size = min(i + batch_size, total_m_train)
-                X_batch_train = x_train[i:adjusted_batch_size]
-                y_batch_train = y_train[i:adjusted_batch_size]
+                x_batch = x_train[i:adjusted_batch_size]
+                y_batch = y_train[i:adjusted_batch_size]
 
                 # forward propagation
-                layer_input_output_cache = self._forward(X_batch_train)
+                layer_input_output_cache = self._forward(x_batch)
 
                 # compute its loss and grad
-                loss, output_grad = self._loss_function(layer_input_output_cache, y_batch_train)
+                loss, output_grad = self._loss_function(layer_input_output_cache, y_batch)
                 # report current progress
                 history_per_batch.append(loss)
 

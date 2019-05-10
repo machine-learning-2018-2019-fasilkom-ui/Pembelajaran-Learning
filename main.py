@@ -20,15 +20,15 @@ one_hot_train = encode(np.array(y_train))
 x_test = np.array(x_test)
 one_hot_test = encode(np.array(y_test))
 
-activation='relu'
-hidden_layer_sizes=(108,)
+activation = 'relu'
+hidden_layer_sizes = [63, 21]
 
-network = ANNClassifier(epoch=20, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
-network.fit(x_train, one_hot_train, batch_size=10)
+network = ANNClassifier(epoch=300, hidden_layer_sizes=hidden_layer_sizes, activation=activation)
+network.fit(x_train, one_hot_train, batch_size=10, rand_seed=42)
+print("Our model accuracy:",network.score(x_test, one_hot_test))
 
-clf = MLPClassifier(activation=activation,hidden_layer_sizes=hidden_layer_sizes)
+clf = MLPClassifier(activation='tanh', hidden_layer_sizes=hidden_layer_sizes)
 clf.fit(x_train, one_hot_train)
 
 result = network.predict_proba(x_test)
-print("Our model accuracy:",network.score(x_test, one_hot_test))
 print("Sklearn model accuracy:",clf.score(x_test, one_hot_test))
