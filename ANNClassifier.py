@@ -3,7 +3,7 @@ import numpy as np
 
 
 class ANNClassifier:
-    def __init__(self, hidden_layer_sizes=(50, 50), epoch=100, activation='sigmoid', lr=1e-4, beta=0.9, ):
+    def __init__(self, hidden_layer_sizes=(50, 50), epoch=100, activation='relu', lr=1e-4, beta=0.9):
         if activation not in ['relu', 'sigmoid']:
             raise ValueError('activation function must be either relu or sigmoid')
         if activation == 'relu':
@@ -99,8 +99,7 @@ class ANNClassifier:
                 self._backward(layer_input_output_cache, output_grad)
 
             train_loss_mean = np.mean(history_per_batch)
-            if epoch % 10 == 0:
-                print("Train Loss Mean:", train_loss_mean)
+            print("Train Loss Mean:", train_loss_mean)
 
     def predict_proba(self, X):
         _input = X
