@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class NNMultiClassClassifier:
+class NNSingleLayerClassifier:
 
     def __init__(self, hidden_nodes, output_labels, epoch, lr):
         self.hidden_nodes = hidden_nodes
